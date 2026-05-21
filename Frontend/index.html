@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NCBA Athlete Game Status System</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="toast-container" class="toast-container"></div>
+    <div
+      id="sidebar-overlay"
+      class="sidebar-overlay"
+      onclick="toggleMobileSidebar(false)"
+    ></div>
+
+    <div id="auth-container" class="login-wrapper">
+      <div id="login-box" class="login-box">
+        <h2>NCBA <span>Basketball</span></h2>
+        <p>Athlete Game Status System Sign In</p>
+        <form id="loginForm">
+          <div class="input-group">
+            <label>Username</label>
+            <input
+              type="text"
+              id="login-username"
+              required
+              placeholder="e.g., admin"
+            />
+          </div>
+          <div class="input-group">
+            <label>Password</label>
+            <div class="pwd-wrapper">
+              <input
+                type="password"
+                id="login-password"
+                required
+                placeholder="e.g., password"
+              />
+              <button
+                type="button"
+                class="toggle-pwd"
+                onclick="togglePassword('login-password')"
+              >
+                Show
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="submit-btn login-btn">Login</button>
+        </form>
+        <div class="sample-accounts">
+          <small>
+            <strong>System Roles Available:</strong><br />
+            Admin: <i>admin</i> | Pass: <i>admin123</i><br />
+            Official: <i>official</i> | Pass: <i>official123</i><br />
+            Coach/User: <i>coach</i> | Pass: <i>user123</i>
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <div id="app-container" style="display: none">
+      <div class="mobile-navbar">
+        <button class="menu-toggle-btn" onclick="toggleMobileSidebar(true)">
+          ☰
+        </button>
+        <h2>NCBA <span>DB</span></h2>
+        <div style="width: 40px"></div>
+      </div>
+
+      <div id="app-sidebar" class="sidebar">
+        <div class="sidebar-brand-wrapper">
+          <h2>NCBA <span>DB</span></h2>
+          <button
+            class="sidebar-close-btn"
+            onclick="toggleMobileSidebar(false)"
+          >
+            ✕
+          </button>
+        </div>
+        <div id="dynamic-nav"></div>
+        <button class="nav-btn logout-btn" onclick="logout()">Logout</button>
+      </div>
+
+      <div class="main-content">
+        <div id="admin-dashboard" class="section">
+          <h1>Master Dashboard & Reports</h1>
+          <div class="dashboard-cards">
+            <div class="card">
+              <h3>Total Players</h3>
+              <p id="dash-players">0</p>
+            </div>
+            <div class="card">
+              <h3>Registered Teams</h3>
+              <p id="dash-teams">0</p>
+            </div>
+            <div class="card">
+              <h3>Games Tracked</h3>
+              <p id="dash-games">0</p>
+            </div>
+          </div>
+
+          <div class="reports-grid">
+            <div class="report-box">
+              <h3>Team Standings</h3>
+              <div class="table-container">
+                <table id="standingsTable">
+                  <thead>
+                    <tr>
+                      <th>Team</th>
+                      <th>W</th>
+                      <th>L</th>
+                      <th>Win %</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="report-box">
+              <h3>League Player Averages (PPG)</h3>
+              <div class="table-container">
+                <table id="averagesTable">
+                  <thead>
+                    <tr>
+                      <th>Player</th>
+                      <th>Team</th>
+                      <th>PPG</th>
+                      <th>RPG</th>
+                      <th>APG</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="admin-teams" class="section">
+          <h1>Team Registry</h1>
+          <div class="form-container">
+            <h3>Register New Organization</h3>
+            <form id="teamForm">
+              <div class="form-grid">
+                <div>
+                  <label>Team Name</label
+                  ><input type="text" id="tName" required />
+                </div>
+                <div>
+                  <label>Head Coach</label
+                  ><input type="text" id="tCoach" required />
+                </div>
+                <div>
+                  <label>School / Organization</label
+                  ><input type="text" id="tOrg" required />
+                </div>
+              </div>
+              <button type="submit" class="submit-btn">Register Team</button>
+            </form>
+          </div>
+          <h3>Active Franchise Database</h3>
+          <div class="table-container">
+            <table id="teamTable">
+              <thead>
+                <tr>
+                  <th>Team ID</th>
+                  <th>Name</th>
+                  <th>Coach</th>
+                  <th>Organization</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="admin-players" class="section">
+          <h1>Athlete Profiles</h1>
+          <div class="form-container">
+            <h3>Register Athlete</h3>
+            <form id="playerForm">
+              <div class="form-grid">
+                <div>
+                  <label>Full Name</label
+                  ><input type="text" id="pName" required />
+                </div>
+                <div>
+                  <label>Age</label><input type="number" id="pAge" required />
+                </div>
+                <div>
+                  <label>Height (cm)</label
+                  ><input type="number" id="pHeight" required />
+                </div>
+                <div>
+                  <label>Weight (kg)</label
+                  ><input type="number" id="pWeight" required />
+                </div>
+                <div>
+                  <label>Position</label>
+                  <select id="pPosition" required>
+                    <option>Guard</option>
+                    <option>Forward</option>
+                    <option>Center</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Team Affiliation</label>
+                  <select id="pTeam" class="team-dropdown" required></select>
+                </div>
+              </div>
+              <button type="submit" class="submit-btn">Register Player</button>
+            </form>
+          </div>
+          <div class="table-container">
+            <table id="playerTable">
+              <thead>
+                <tr>
+                  <th>Player ID</th>
+                  <th>Name</th>
+                  <th>Pos</th>
+                  <th>Team</th>
+                  <th>Ht/Wt</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="admin-schedules" class="section">
+          <h1>Game Scheduling</h1>
+          <div class="form-container">
+            <h3>Create Official Match</h3>
+            <form id="scheduleForm">
+              <div class="form-grid">
+                <div>
+                  <label>Match Date</label
+                  ><input type="date" id="gDate" required />
+                </div>
+                <div>
+                  <label>Venue</label><input type="text" id="gVenue" required />
+                </div>
+                <div>
+                  <label>Home Team</label
+                  ><select id="gHome" class="team-dropdown" required></select>
+                </div>
+                <div>
+                  <label>Away Team</label
+                  ><select id="gAway" class="team-dropdown" required></select>
+                </div>
+              </div>
+              <button type="submit" class="submit-btn">Schedule Game</button>
+            </form>
+          </div>
+          <div class="table-container">
+            <table id="scheduleTable">
+              <thead>
+                <tr>
+                  <th>Game ID</th>
+                  <th>Date</th>
+                  <th>Venue</th>
+                  <th>Matchup</th>
+                  <th>Status / Score</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="official-live" class="section">
+          <h1>Live Game Statistics Desk</h1>
+          <div class="form-container">
+            <h3>Log Player GameStats</h3>
+            <form id="statsForm">
+              <div class="form-grid">
+                <div>
+                  <label>Target Game</label
+                  ><select
+                    id="sGameSelect"
+                    class="game-dropdown"
+                    required
+                  ></select>
+                </div>
+                <div>
+                  <label>Target Team</label
+                  ><select id="sTeamSelect" required disabled>
+                    <option>Select Game First</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Target Player</label
+                  ><select id="sPlayerSelect" required disabled>
+                    <option>Select Team First</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Points</label
+                  ><input type="number" id="sPts" value="0" min="0" />
+                </div>
+                <div>
+                  <label>Rebounds</label
+                  ><input type="number" id="sReb" value="0" min="0" />
+                </div>
+                <div>
+                  <label>Assists</label
+                  ><input type="number" id="sAst" value="0" min="0" />
+                </div>
+                <div>
+                  <label>Steals</label
+                  ><input type="number" id="sStl" value="0" min="0" />
+                </div>
+                <div>
+                  <label>Blocks</label
+                  ><input type="number" id="sBlk" value="0" min="0" />
+                </div>
+                <div>
+                  <label>Turnovers</label
+                  ><input type="number" id="sTov" value="0" min="0" />
+                </div>
+                <div>
+                  <label>Fouls</label
+                  ><input type="number" id="sFouls" value="0" min="0" max="6" />
+                </div>
+              </div>
+              <button type="submit" class="submit-btn">
+                Append Player Stats
+              </button>
+            </form>
+          </div>
+
+          <div class="form-container" style="border-top: 4px solid #333">
+            <h3>Finalize Game Record</h3>
+            <form id="finalizeForm">
+              <div class="form-grid">
+                <div>
+                  <label>Select Active Game</label
+                  ><select
+                    id="fGameSelect"
+                    class="game-dropdown"
+                    required
+                  ></select>
+                </div>
+                <div>
+                  <label>Final Score (Home - Away)</label
+                  ><input
+                    type="text"
+                    id="fScore"
+                    placeholder="e.g., 102 - 98"
+                    required
+                  />
+                </div>
+              </div>
+              <button type="submit" class="submit-btn dark-btn">
+                Lock Final Score
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div id="official-disciplinary" class="section">
+          <h1>Disciplinary Database</h1>
+          <div class="form-container">
+            <h3>Record Foul / Violation</h3>
+            <form id="disciplinaryForm">
+              <div class="form-grid">
+                <div>
+                  <label>Player</label
+                  ><select
+                    id="dPlayer"
+                    class="player-dropdown"
+                    required
+                  ></select>
+                </div>
+                <div>
+                  <label>Violation Level</label>
+                  <select id="dType">
+                    <option>Technical Foul</option>
+                    <option>Flagrant 1</option>
+                    <option>Flagrant 2 / Ejection</option>
+                  </select>
+                </div>
+                <div class="full-width-field">
+                  <label>Official Incident Report Notes</label>
+                  <input type="text" id="dNotes" required />
+                </div>
+              </div>
+              <button type="submit" class="submit-btn danger-btn">
+                Log Incident
+              </button>
+            </form>
+          </div>
+          <div class="table-container">
+            <table id="disciplinaryTable">
+              <thead>
+                <tr>
+                  <th>Player</th>
+                  <th>Team</th>
+                  <th>Violation</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="team-portal" class="section">
+          <h1>Coach Analytics Portal</h1>
+          <div class="dashboard-cards">
+            <div class="card team-card">
+              <h3>Roster Health</h3>
+              <p style="color: green">Optimal</p>
+            </div>
+            <div class="card team-card">
+              <h3>Active Roster</h3>
+              <p id="coach-roster-count">0</p>
+            </div>
+          </div>
+
+          <div class="form-container">
+            <h3>Player Efficiency Tracker</h3>
+            <p style="color: #666; font-size: 0.9rem; margin-bottom: 10px">
+              Aggregated performance stats across all games for analysis.
+            </p>
+            <div class="table-container">
+              <table id="analyticsTable">
+                <thead>
+                  <tr>
+                    <th>Player</th>
+                    <th>Pos</th>
+                    <th>Avg PTS</th>
+                    <th>Avg REB</th>
+                    <th>Avg AST</th>
+                    <th>Turnover Ratio</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="team-injuries" class="section">
+          <h1>Medical & Injury Logs</h1>
+          <div class="form-container">
+            <h3>File Medical Report</h3>
+            <form id="injuryForm">
+              <div class="form-grid">
+                <div>
+                  <label>Injured Player</label
+                  ><select
+                    id="iPlayer"
+                    class="player-dropdown"
+                    required
+                  ></select>
+                </div>
+                <div>
+                  <label>Date of Injury</label
+                  ><input type="date" id="iDate" required />
+                </div>
+                <div>
+                  <label>Injury Diagnosis</label
+                  ><input
+                    type="text"
+                    id="iType"
+                    placeholder="e.g., Sprained Ankle"
+                    required
+                  />
+                </div>
+                <div>
+                  <label>Est. Recovery</label
+                  ><input
+                    type="text"
+                    id="iRecovery"
+                    placeholder="e.g., 2 weeks"
+                    required
+                  />
+                </div>
+                <div class="full-width-field">
+                  <label>Medical Notes</label
+                  ><textarea id="iNotes" rows="2"></textarea>
+                </div>
+              </div>
+              <button type="submit" class="submit-btn">
+                Submit Injury Report
+              </button>
+            </form>
+          </div>
+          <div class="table-container">
+            <table id="injuryTable">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Player</th>
+                  <th>Diagnosis</th>
+                  <th>Recovery</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
